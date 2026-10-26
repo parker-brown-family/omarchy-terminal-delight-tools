@@ -14,6 +14,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      # The theme is its own repository and carries no code; build-variants
+      # starts every palette from its colors.toml.
+      - uses: actions/checkout@v5
+        with:
+          repository: parker-brown-family/omarchy-terminal-delight-theme
+          path: theme
+
       - name: deps
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends jq gawk shellcheck glslang-tools imagemagick fonts-noto-color-emoji
 
@@ -33,6 +40,8 @@ jobs:
       # still default and the animated opt-in — because td-monitor can flip
       # ANIMATED on any of them at runtime.
       - name: frags compile in both states
+        env:
+          TD_THEME_DIR: theme
         run: |
           ./bin/build-variants --as-themes --into /tmp/themes --reuse-previews
           for f in crt-glass.frag /tmp/themes/*/crt-glass.frag; do

@@ -34,6 +34,23 @@ import tomllib
 MAGICK = shutil.which("magick") or shutil.which("convert") or "magick"
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
+
+
+def theme_root():
+    """The theme checkout, whose colors.toml every palette starts from.
+
+    The theme is its own repository, because a theme carries no code, so it is
+    found the way lib/theme.sh finds it: TD_THEME_DIR, or the checkout cloned
+    beside this one."""
+    env = os.environ.get("TD_THEME_DIR")
+    root = pathlib.Path(env).expanduser() if env else REPO.parent / "omarchy-terminal-delight-theme"
+    if not (root / "colors.toml").is_file():
+        sys.exit(f"no Terminal Delight theme checkout at {root} — clone "
+                 "https://github.com/parker-brown-family/omarchy-terminal-delight-theme "
+                 "beside this repository, or point TD_THEME_DIR at one")
+    return root.resolve()
+
+
 TILE_W, TILE_H = 1600, 900
 LABEL_FONT = "JetBrainsMono Nerd Font"
 
@@ -428,7 +445,8 @@ def main():
     args = ap.parse_args()
 
     variants = tomllib.loads((REPO / "variants.toml").read_text())
-    base = tomllib.loads((REPO / "colors.toml").read_text())
+    THEME = theme_root()
+    base = tomllib.loads((THEME / "colors.toml").read_text())
 
     # The key becomes a directory name (terminal-delight-<key>) and reaches
     # td-tint as a positional argument. Constraining it here is what makes
@@ -514,13 +532,13 @@ def main():
             frag,
         )
         (theme / "crt-glass.frag").write_text(frag)
-        shutil.copy2(REPO / "icons.theme", theme / "icons.theme")
+        shutil.copy2(THEME / "icons.theme", theme / "icons.theme")
         # td-tint reads this to label the terminal it just tinted
         (theme / "glyph").write_text(v["glyph"] + "\n")
         shutil.copy2(repo_previews / f"{key}.png", theme / "preview.png")
 
         # the base background, pulled toward the variant's hue
-        run([MAGICK, REPO / "backgrounds/13-void-tube.jpg",
+        run([MAGICK, THEME / "backgrounds/13-void-tube.jpg",
              "-modulate", "100,92", "-fill", v["accent"], "-tint", "22",
              "-quality", "88", theme / "backgrounds" / f"0-{key}-tube.jpg"])
 

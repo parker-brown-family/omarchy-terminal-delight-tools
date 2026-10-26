@@ -1,13 +1,18 @@
-# Terminal Delight — an Omarchy theme
+# Terminal Delight — the tools behind the Omarchy theme
 
-Phosphor green on void black, and every window bowed like the face of a tube.
+Everything that runs for the [Terminal Delight theme](https://github.com/parker-brown-family/omarchy-terminal-delight-theme): the curve
+that bows every window like the face of a tube, the glass over the desktop,
+the eleven hand-made palettes, and `td-tint`, the engine that paints them onto
+a terminal. It lives apart from the theme because a theme carries no code.
+Omarchy never runs anything in one, and the theme gallery lists only themes
+that ship none. This repository began as a copy of the theme's, so the commits
+that built all of this are here.
 
-Sampled from the [Terminal Delight](https://github.com/parker-brown-family/terminal-delight)
-terminal's own brand palette, with the same barrel warp the app uses on its
-panes — `f = 1 + 0.14·r² + 0.06·r⁴` — lifted to the compositor so it bends
-every window, not just one app's.
+The curve is the barrel warp the [Terminal Delight](https://github.com/parker-brown-family/terminal-delight)
+app uses on its panes — `f = 1 + 0.14·r² + 0.06·r⁴` — lifted to the compositor
+so it bends every window, not just one app's.
 
-![preview](preview.png)
+![the theme, with the curve installed](https://github.com/parker-brown-family/omarchy-terminal-delight-theme/raw/main/preview.png)
 
 > [!WARNING]
 > **The warp is in development.** The colours, the palettes and the paint
@@ -57,29 +62,21 @@ omarchy plugin add https://github.com/parker-brown-family/omarchy-td-palette.git
 
 ## Install
 
-```
-Omarchy menu (Super + Space) → Install → Style → Theme
-https://github.com/parker-brown-family/omarchy-terminal-delight-theme
-```
-
-The same thing from a shell, which is the form `test/install-e2e` exercises:
+The theme first, the way any Omarchy theme installs:
 
 ```bash
 omarchy theme install https://github.com/parker-brown-family/omarchy-terminal-delight-theme
 ```
 
-That gets you the colours, the background, and the full-screen glass. It does
-not get you the curve — read on.
+Then this repository, wherever you keep checkouts:
 
-Either path clones into `~/.config/omarchy/themes/terminal-delight` (replacing
-whatever is already there, so don't run it on a machine where you hand-wrote
-that directory) and then stages the theme. Omarchy will not stage a `.lua` or a
-terminal config out of an installed theme, because those name programs to run —
-this theme ships neither, so nothing of it is dropped. What lands staged is
-`colors.toml`, `backgrounds/`, `preview.png`, `crt-glass.frag` and
-`icons.theme`. The repo's `bin/`, `test/`, `docs/` and `previews/` are copied
-along with them and never run; they are why the staged directory is a few MB
-rather than a few dozen KB.
+```bash
+git clone https://github.com/parker-brown-family/omarchy-terminal-delight-tools
+```
+
+Nothing in it runs until you run it. The curve and the glass are
+`./install-curve.sh`, below; the palettes and `td-tint` are
+`./install-variants.sh`.
 
 ## The curve is a second step, on purpose
 
@@ -106,12 +103,13 @@ and everyone else gets the same settings from `install-curve.sh`.
 So the curve ships as a script you run yourself, after you have read it:
 
 ```bash
-git clone https://github.com/parker-brown-family/omarchy-terminal-delight-theme
-cd omarchy-terminal-delight-theme
+cd omarchy-terminal-delight-tools
 ./install-curve.sh
 ```
 
-That writes one marked block into your `~/.config/hypr/looknfeel.lua` — the
+That copies the glass, `crt-glass.frag`, into the installed theme, so every
+switch to the theme stages it, and writes one marked block into your
+`~/.config/hypr/looknfeel.lua` — the
 rounding and blur the warp is drawn for — and arms the **monitor pass**, which
 is the tier where a click lands where you aimed. It also installs
 `td-tubes.service`, the watcher that keeps the warp in step with your layout.
@@ -507,15 +505,18 @@ Hyprland loads window shaders when it reads its config, so `hyprctl reload`
 arms them — a relogin is not needed, whatever the docs imply. Verified by
 pixel on 0.56: install, reload, and the windows bow on the next frame.
 
-## The three repos
+## The repos
 
 | Repo | What it is |
 |---|---|
 | [**terminal-delight**](https://github.com/parker-brown-family/terminal-delight) | the terminal itself — GPU-native, Rust, tiling panes, per-pane grading |
-| [**omarchy-terminal-delight-theme**](https://github.com/parker-brown-family/omarchy-terminal-delight-theme) | the desktop half — the Omarchy theme, the palette set, the compositor curve, and `td-tint` |
+| [**omarchy-terminal-delight-theme**](https://github.com/parker-brown-family/omarchy-terminal-delight-theme) | the Omarchy theme — colours, wallpapers and a preview, and no code |
+| [**omarchy-terminal-delight-tools**](https://github.com/parker-brown-family/omarchy-terminal-delight-tools) | this repository — the palette set, `td-tint`, the compositor curve and the glass |
 | [**omarchy-td-palette**](https://github.com/parker-brown-family/omarchy-td-palette) | *Terminal Paint* — the 🎨 bar widget that raises the picker over every terminal tile on the workspace |
+| [**omarchy-crt**](https://github.com/parker-brown-family/omarchy-crt) | *Terminal CRT* — curved glass for the whole desktop, on any theme, as an Omarchy plugin |
 
-This one is the middle layer, and the only one the other two both depend on:
+This one is the middle layer, the one the terminal and the paint widget both
+depend on:
 `install-variants.sh` is what puts `td-tint` on `PATH`, and `td-tint --state`
 is the oracle the palette widget renders — both card lists, the tiles, and
 which list each tile's pick came from. A palette key written in
@@ -526,11 +527,9 @@ validates every key it reads rather than trusting this repo to be careful.
 
 | File | What |
 |---|---|
-| `colors.toml` | the palette every Omarchy template is generated from |
-| `backgrounds/` | fourteen wallpapers the switcher cycles (`omarchy theme bg next`). Osaka Jade's *Shaded Entrance* is the default because sort order picks it; Void Tube is still here, and `build-variants` still tints it per variant. Thirteen are Omarchy's own theme art, carried over unmodified — `backgrounds/ATTRIBUTION.md` says which is whose |
-| `crt-glass.frag` | the MONITOR pass — Terminal Delight's display stack for the whole desktop: px-true scanlines, the rolling tracking band, stepped flicker, glass glare, phosphor bloom, vignette, and a brightness/contrast/saturation/gamma grade. Every dial is a `const` in its MONITOR CONFIG block; `CURV = 0` because the per-window warp carries the curve |
+| `crt-glass.frag` | the MONITOR pass — Terminal Delight's display stack for the whole desktop: px-true scanlines, the rolling tracking band, stepped flicker, glass glare, phosphor bloom, vignette, and a brightness/contrast/saturation/gamma grade. Every dial is a `const` in its MONITOR CONFIG block; `CURV = 0` because the per-window warp carries the curve. `install-curve.sh` copies it into the installed theme |
 | `shaders/surface.frag`, `shaders/ext.frag` | the per-window warp |
-| `install-curve.sh` | the opt-in installer for what the drop takes away: the per-window shaders, plus a managed rounding/blur/shadow/screen-shader block in `~/.config/hypr/looknfeel.lua`. It is also what arms the per-tile CRT switch, because that switch is the rounded-variant gate |
+| `install-curve.sh` | the opt-in installer for what the theme cannot carry: the glass, the per-window shaders, plus a managed rounding/blur/shadow/screen-shader block in `~/.config/hypr/looknfeel.lua`. It is also what arms the per-tile CRT switch, because that switch is the rounded-variant gate |
 | `variants.toml` | the palette set: six keys each, the only file you edit |
 | `bin/build-variants` | derives a palette from those six keys — or, under `--as-themes`, a whole theme and its gallery tile |
 | `bin/td-tint` | tint one terminal — text, border and tube — from either source, without touching the theme |
@@ -539,11 +538,9 @@ validates every key it reads rather than trusting this repo to be careful.
 | `test/run` | the hermetic test suite (stubs for hyprctl/omarchy-theme-*; no compositor needed) |
 | `install-variants.sh` | builds every palette into `~/.local/share/terminal-delight/palettes/`, installs the tools, and retires the old variant *themes* |
 | `previews/` | the gallery tiles, as the theme grid shows them under `--as-themes` |
+| `lib/theme.sh` | finds the theme checkout for the tools that read or write it: `TD_THEME_DIR`, or `../omarchy-terminal-delight-theme` beside this one |
 
-Copying the directory into `~/.config/omarchy/themes/terminal-delight/`
-yourself keeps all of it — a theme you wrote stays yours — but the curve still
-arrives through `install-curve.sh`, which writes its managed block into
-`~/.config/hypr/looknfeel.lua`. It skips that step, and says so, if the staged
+`install-curve.sh` skips the look'n'feel block, and says so, if the staged
 theme already carries Lua of its own; a generated variant does.
 
 ## Agents paint too
@@ -607,6 +604,7 @@ part of CI — they are evidence about the box they ran on, on the day they ran:
 ```
 
 `install-e2e` runs the genuine `omarchy-theme-install` and `omarchy-theme-set`
+on a clone of the theme checkout,
 with `HOME` and every `XDG_*` pointed at a throwaway tree, so it exercises the
 real clone, the real name derivation and the real staging deny list without
 going anywhere near your installed theme — which matters, because that install

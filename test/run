@@ -401,10 +401,10 @@ assert_eq "every shipped variant key is already safe" "$bad" ""
 fake="$T/fakerepo"
 mkdir -p "$fake/bin"
 cp "$root/bin/build-variants" "$fake/bin/"
-cp "$root/colors.toml" "$fake/colors.toml"
+cp "$here/fixtures/theme-colors.toml" "$fake/colors.toml"
 printf '[-evil]\nglyph = "x"\naccent = "#FF0000"\naccent_bright = "#FF8080"\nforeground = "#FFFFFF"\nbackground = "#000000"\nsurface = "#111111"\n' > "$fake/variants.toml"
 assert_has "build-variants refuses a dash-leading key" \
-  "$(cd "$fake" && python3 bin/build-variants --previews-only 2>&1)" "bad variant key"
+  "$(cd "$fake" && TD_THEME_DIR="$fake" python3 bin/build-variants --previews-only 2>&1)" "bad variant key"
 assert_has "install-variants' uninstall reader skips it too" \
   "$(printf '[-evil]\n[cherry]\n' | grep -oP '^\[\K[a-z0-9][a-z0-9-]*' | tr '\n' ' ')" "cherry"
 

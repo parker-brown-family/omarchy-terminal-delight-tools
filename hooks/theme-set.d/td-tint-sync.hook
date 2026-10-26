@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installed by omarchy-terminal-delight-theme's install-variants.sh.
+# Installed by omarchy-terminal-delight-tools' install-variants.sh.
 #
 # Omarchy calls every executable here after a theme switch, passing the new
 # theme's snake-cased name as $1 (unused — the reconciler reads the freshly

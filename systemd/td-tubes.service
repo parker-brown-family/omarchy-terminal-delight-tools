@@ -6,7 +6,7 @@
 # tiled onto the wrong tiles, fragments of one window inside another, and
 # clicks that miss — three symptoms, one cause.
 Description=Terminal Delight — keep the per-tile CRT tubes in step with the layout
-Documentation=https://github.com/parker-brown-family/omarchy-terminal-delight-theme
+Documentation=https://github.com/parker-brown-family/omarchy-terminal-delight-tools
 PartOf=graphical-session.target
 After=graphical-session.target
 # Nothing to watch without a compositor, and nothing to do on a text console.

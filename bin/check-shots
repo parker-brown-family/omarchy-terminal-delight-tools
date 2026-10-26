@@ -28,11 +28,15 @@ cd "$root" || exit 1
 
 # image  ->  the sources whose changes should be visible in it
 declare -A RENDERS=(
-  ["preview.png"]="shaders/surface.frag crt-glass.frag colors.toml bin/shoot-theme"
-  ["docs/gallery/terminal-delight.webp"]="shaders/surface.frag crt-glass.frag colors.toml bin/shoot-theme"
+  ["docs/gallery/terminal-delight.webp"]="shaders/surface.frag crt-glass.frag bin/shoot-theme"
   ["docs/tube.png"]="shaders/surface.frag crt-glass.frag"
 )
 
+# ALSO KNOWINGLY UNGATED: the theme's preview.png, and colors.toml as a source of
+# the gallery shot. Both live in the theme repository now, which carries no
+# code, and this gate compares one repository's history. bin/shoot-theme still
+# writes preview.png into the theme checkout; reshoot it when colors.toml moves.
+#
 # KNOWINGLY UNGATED, and worth saying so rather than letting someone assume
 # otherwise: docs/gallery/paint-overlay.png and painted-wall.png are pictures of
 # Terminal Paint, whose source lives in another repository. Nothing here can see

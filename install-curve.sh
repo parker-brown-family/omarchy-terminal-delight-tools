@@ -79,6 +79,49 @@ WARP_WAS_LIVE=""
 DISABLED_DIR="$SHADER_DIR/disabled-by-td-tubes"
 UNIT_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
 UNIT="td-tubes.service"
+# The glass, crt-glass.frag, used to arrive inside the theme and be staged by
+# every switch to it. The theme carries no code now, so the shader lives in
+# this repository and is copied into the installed theme instead. Omarchy
+# stages everything in a theme directory except Lua and terminal configs, so
+# each switch to the theme stages it again, and everything that reads the
+# staged copy (the look'n'feel block below, td-monitor, td-tubes) finds it
+# where it always was.
+THEME_DIR="$CONFIG_HOME/omarchy/themes/terminal-delight"
+GLASS="crt-glass.frag"
+
+install_glass() {
+  if [[ ! -d $THEME_DIR ]]; then
+    echo "no $THEME_DIR — install the theme first; the glass is staged from it"
+    return 0
+  fi
+  # Never over a copy that is already there: td-monitor turns its knobs in
+  # place, and a re-run of this installer must not reset them.
+  if [[ -f $THEME_DIR/$GLASS ]]; then
+    echo "the glass is already in $THEME_DIR — left as it is"
+  else
+    install -m644 "$here/$GLASS" "$THEME_DIR/$GLASS"
+    echo "installed the glass into $THEME_DIR"
+  fi
+  # Wearing the theme already: stage it too, so the reload below arms it.
+  local current
+  current="$(cat "${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/current/theme.name" 2>/dev/null || true)"
+  if [[ $current == terminal-delight && -d $STAGED_THEME && ! -f $STAGED_THEME/$GLASS ]]; then
+    install -m644 "$THEME_DIR/$GLASS" "$STAGED_THEME/$GLASS"
+    echo "staged it for the theme you are wearing"
+  fi
+}
+
+# Ours to remove only when the theme's own checkout does not track it: an older
+# clone of the theme shipped the file itself, and taking that out would leave
+# the person's theme checkout modified.
+remove_glass() {
+  [[ -f $THEME_DIR/$GLASS ]] || return 1
+  if git -C "$THEME_DIR" ls-files --error-unmatch "$GLASS" >/dev/null 2>&1; then
+    return 1
+  fi
+  rm -f "$THEME_DIR/$GLASS"
+  echo "removed the glass from $THEME_DIR"
+}
 
 # `case` rather than a loop ending in a bare `&&`: under `set -e` that shape is
 # one edit away from aborting the script on any argument it does not know,
@@ -153,6 +196,7 @@ strip_block() {
 if [[ "${1:-}" == "--uninstall" ]]; then
   removed=false
   remove_unit && removed=true
+  remove_glass && removed=true
   for f in surface.frag ext.frag; do
     if [[ -f "$SHADER_DIR/$f" ]] && grep -q "terminal-delight" "$SHADER_DIR/$f"; then
       rm -f "$SHADER_DIR/$f"
@@ -183,6 +227,9 @@ if [[ "${1:-}" == "--uninstall" ]]; then
 fi
 
 [[ -d "$HYPR_DIR" ]] || { echo "no $HYPR_DIR — is Hyprland configured?" >&2; exit 1; }
+
+# 0. the glass, which both tiers finish with
+install_glass
 
 # 1. the warp — one tier or the other, never both
 mkdir -p "$SHADER_DIR"
@@ -355,6 +402,6 @@ fi
 cat <<'DEV'
 
   Reports and pictures are welcome:
-  https://github.com/parker-brown-family/omarchy-terminal-delight-theme/issues
+  https://github.com/parker-brown-family/omarchy-terminal-delight-tools/issues
   ───────────────────────────────────────────────────────────────────────────
 DEV

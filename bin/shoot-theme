@@ -20,6 +20,7 @@ set -uo pipefail
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root="$(dirname "$here")"
+. "$root/lib/theme.sh"
 OUT="$root/docs/gallery"
 WS=8                       # far from anything in daily use
 KEEP=""
@@ -131,12 +132,12 @@ magick "$cap" -strip -resize '1200>' -quality 80 "$OUT/terminal-delight.webp"
 #    theme's 350 KB — and the shader's grain is what makes it compress badly,
 #    not anything anyone will miss. Checked by eye: no banding in the gradient.
 magick "$cap" -strip -resize 1800x -colors 256 \
-  -define png:compression-level=9 "$root/preview.png"
+  -define png:compression-level=9 "$THEME_ROOT/preview.png"
 
 rm -f "$cap" "$pane"
 
-for f in "$OUT/terminal-delight.webp" "$root/preview.png"; do
-  printf '  %-52s %s  %d KB\n' "${f#"$root/"}" \
+for f in "$OUT/terminal-delight.webp" "$THEME_ROOT/preview.png"; do
+  printf '  %-52s %s  %d KB\n' "${f#"$(dirname "$root")/"}" \
     "$(magick identify -format '%wx%h' "$f")" "$(($(stat -c %s "$f") / 1024))"
 done
 
