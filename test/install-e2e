@@ -174,12 +174,17 @@ else
   no "install-curve wrote no block"
   printf '%s\n' "$curve_out" | sed 's/^/      /'
 fi
+# The theme carries no shader of its own any more, so the installer is what
+# puts the glass where every reader of the staged copy looks for it.
+have "$theme/crt-glass.frag"  "install-curve put the glass into the installed theme"
+have "$staged/crt-glass.frag" "…and staged it, because that theme is the one being worn"
 if bash "$root/install-curve.sh" --uninstall >/dev/null 2>&1 &&
    ! grep -q 'crt-glass.frag' "$looknfeel" 2>/dev/null; then
   ok "…and takes it back out again"
 else
   no "--uninstall left the block behind"
 fi
+lacks "$theme/crt-glass.frag" "…and takes the glass back out of the theme it put it in"
 
 echo "— the DEFAULT tier: the monitor pass, which must not leave both warps installed"
 # No flag. The monitor pass is what a plain install now gives you, because the
