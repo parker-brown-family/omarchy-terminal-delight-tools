@@ -30,6 +30,9 @@ jobs:
       - name: test suite
         run: ./test/run
 
+      - name: a float behind fullscreen claims no tube
+        run: ./test/probe-hidden-float
+
       - name: shellcheck
         run: shellcheck -S warning bin/td-tint bin/td-monitor bin/td-tubes bin/shoot-theme bin/check-shots bin/doctor install-variants.sh install-curve.sh hooks/theme-set.d/td-tint-sync.hook test/run test/install-e2e test/probe-cube-demand test/verify-cube-live test/probe-trail test/probe-aim test/probe-warp-count test/stubs/hyprctl test/stubs/omarchy-theme-color
 
