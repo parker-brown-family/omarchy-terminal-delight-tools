@@ -48,11 +48,13 @@ STUB
 }
 
 surfaces() {
-  PATH="$S/bin:$PATH" bash -c \
+  PATH="$S/bin:$REPO/bin:$PATH" bash -c \
     "source '$REPO/bin/td-tubes'; describe \"\$(cap \"\$(tubes_json)\")\"" 2>/dev/null
 }
 
 claims() { # text class wanted
+  # No output is a broken harness, and it must not read as "claims nothing".
+  grep -q 'tube(s)' <<<"$1" || return 1
   if grep -q "$2" <<<"$1"; then got=yes; else got=no; fi
   [[ "$got" == "$3" ]]
 }
