@@ -377,8 +377,15 @@ tubes_json() {
             # window twice, and identity is the only map that composes.
             curv:  0,
             lvl:   $lvl } ] as $layer_tubes
+    # A float behind a fullscreen window is still mapped and still listed, but nothing
+    # draws it. Floats claim ahead of tiles, so its tube would punch a bent hole through
+    # the fullscreen picture. A tile behind one keeps its rect: focus order puts the
+    # fullscreen window first, so that rect is simply never reached.
+    | ([ $c[] | select(.fullscreen == 2) | .workspace.id ]) as $hidden_ws
     | ( [ $c[]
         | select(.mapped and (.hidden | not))
+        | select(.floating != true or .fullscreen == 2 or .allowedOverFullscreen == true
+                 or (.workspace.id as $w | ($hidden_ws | index($w)) == null))
         | select((.monitor) as $mn | ($covered | index($mn)) == null)
         | ($mon[.monitor | tostring]) as $mo
         # VISIBLE ON THIS MONITOR, which is not the same as "on its active
